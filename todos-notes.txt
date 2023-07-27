@@ -1,0 +1,54 @@
+kubectl get all -n todos
+kubectl get secrets -n todos
+kubectl get configmaps -n todos
+
+
+kubectl apply -f <file-name>.yaml
+
+kubectl apply -f 0-project-namespace.yaml
+kubectl apply -f 1-mysql-secret.yaml
+kubectl apply -f 2-mysql-configmap.yaml
+kubectl apply -f 3-mysql.yaml
+kubectl apply -f 4-adminer.yaml
+kubectl apply -f 5-todos-server.yaml
+
+kubectl apply -f 0-project-namespace.yaml
+kubectl apply -f 3-mysql.yaml
+kubectl apply -f 4-adminer.yaml
+kubectl apply -f 5-todos-server.yaml
+
+
+kubectl get service -n todos
+
+minikube service adminer-service -n todos
+
+minikube service todos-server-service -n todos
+
+
+kubectl get pod -n todos
+kubectl logs todos-server-769f94fcf8-rbxzp -n todos
+kubectl logs adminer-58fb579bfd-79wmc -n todos
+
+
+kubectl get service -n todos
+kubectl describe service todos-server-service -n todos
+
+
+adminer login
+----------------
+System: MySql
+Server: mysql-service.todos / mysql-service   # fork8s configuration (in docker compose it will be Server: mysql)
+Username: root
+password: 123456
+Database: devops_p1
+
+
+
+getting secret data: 
+💲 kubectl get secret mysql-secret -n todos -o jsonpath='{.data}'
+getting config data:
+Check the content of the MySQL ConfigMap
+💲 kubectl get configmap mysql-configmap -n todos -o jsonpath='{.data}'
+
+❗ kubectl delete namespace todos
+❗ kubectl get svc -n todos

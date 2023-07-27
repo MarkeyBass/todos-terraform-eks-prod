@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer
+  labels:
+    app: adminer
+  namespace: todos
+spec:
+  replicas: 1 # You can adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: adminer # Label to match with the selector in the Service
+  template:
+    metadata:
+      labels:
+        app: adminer # Label for the Pod template
+    spec:
+      containers:
+      - name: adminer
+        image: adminer
+        ports:
+        - containerPort: 8080 # The port Adminer listens on
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer-service
+  namespace: todos
+spec:
+  selector:
+    app: adminer # Selects the Pods with label app=adminer
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80 # The port exposed by the service
+      targetPort: 8080 # The port that Adminer listens on
+      nodePort: 30001

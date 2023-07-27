@@ -1,0 +1,30 @@
+Connect to the Cluster
+-----------------------
+*) Adding context to kubectl
+    💲 cat ~/.kube/config
+    💲 cat ~/.kube/config > ./meta/kube_config_old_3.txt
+    💲 rm ~/.kube/config
+    
+💲 terraform init
+💲 terraform apply -auto-approve
+
+
+    💲 aws eks --region us-west-2 update-kubeconfig --name eks --profile terraform
+
+    💲 kubectl get svc
+
+
+*) run k8s cluster 
+💲
+kubectl apply -f 0-project-namespace.yaml
+kubectl apply -f 3-mysql.yaml
+kubectl apply -f 4-adminer.yaml
+kubectl apply -f 5-todos-server.yaml
+
+💲 kubectl get svc -n todos
+
+❗💲 kubectl delete namespace todos
+❗💲 kubectl get svc -n todos
+❗💲 kubectl get svc
+
+❗💲 terraform destroy -auto-approve
