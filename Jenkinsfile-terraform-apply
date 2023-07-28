@@ -1,0 +1,48 @@
+def gitCheckoutSCM(gitRepoUrl) {
+    sshagent(credentials: ['controller-node']) {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: 'main']],
+            userRemoteConfigs: [[
+                url: "${gitRepoUrl}",
+                credentialsId: 'controller-node'
+            ]]
+        ])
+    }
+}
+
+
+pipeline {
+    agent {label 'agent-1'}
+
+    environment {
+        GIT_REPO_URL_SSH = 'git@github.com:MarkeyBass/todos-terraform-eks-prod.git'
+    }
+    
+    
+    stages {
+        stage('Git Chekout') {
+            steps {
+                gitCheckoutSCM(GIT_REPO_URL_SSH)
+            }
+        }
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+
+        stage('Git Commit and Push Terraform State Changes') {
+            steps {
+                sh 'git checkout main'
+                sh 'git add .'
+                sh 'git status'
+                sh 'git commit -m "Terraform changes from Jenkins job ( ${JOB_NAME} )"'
+                sh 'git push origin main'
+            }
+        }
+    }
+}
