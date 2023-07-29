@@ -84,7 +84,7 @@ resource "aws_eks_node_group" "nodes_general" {
   # Configuration block with scaling settings
   scaling_config {
     # Desired number of worker nodes.
-    desired_size = 1
+    desired_size = 3
 
     # Maximum number of worker nodes.
     max_size = 5

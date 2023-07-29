@@ -2,3 +2,4 @@ notes-2.txt
 *.hcl
 *.terraform
 .terraform.lock.hcl
+monitoring-logs.txt

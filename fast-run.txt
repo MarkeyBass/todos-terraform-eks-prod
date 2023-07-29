@@ -9,12 +9,14 @@ Connect to the Cluster
 💲 terraform apply -auto-approve
 
 
+Connect to the EKS claster
     💲 aws eks --region us-west-2 update-kubeconfig --name eks --profile terraform
 
     💲 kubectl get svc
 
 
-*) run k8s cluster 
+*) run todos-k8s-prod cluster
+-------------------------------- 
 💲
 kubectl apply -f 0-project-namespace.yaml
 kubectl apply -f 3-mysql.yaml
@@ -22,9 +24,73 @@ kubectl apply -f 4-adminer.yaml
 kubectl apply -f 5-todos-server.yaml
 
 💲 kubectl get svc -n todos
+NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)        AGE
+adminer-service        LoadBalancer   10.100.166.97    abd8747e1affc4f8db5eb4b658a7c687-1231382294.us-west-2.elb.amazonaws.com   80:30001/TCP   12m
+mysql-service          ClusterIP      10.100.71.139    <none>                                                                    3306/TCP       12m
+todos-server-service   LoadBalancer   10.100.186.128   a9c913c6352294ee3a907acc879773f9-2070628649.us-west-2.elb.amazonaws.com   80:30002/TCP   8s
+
+*) Monitoring
+================
+
+linux helm installation
+------------------------
+💲 wget https://get.helm.sh/helm-v3.9.3-linux-amd64.tar.gz
+💲 tar xvf helm-v3.9.3-linux-amd64.tar.gz
+💲 sudo mv linux-amd64/helm /usr/local/bin
+💲 helm version
+
+doanload prometheus repo
+-------------------------
+💲 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+💲 helm repo update
+💲 kubectl create namespace prometheus
+
+מעדכן את הרכיב של פרומיטיוס - פורס ריסורסים של פרומיטיוס בתוך הניימספייס באמצעות האלם
+💲 helm install prometheus prometheus-community/prometheus --namespace prometheus
+
+convert prometheus-kube-state-metrics ClusterIP into NodePort service with the following command.
+This is required to access prometheus-server using your browser.
+
+💲 kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-ext -n prometheus
+💲 kubectl get svc -n prometheus
+📤 prometheus-server-ext                 NodePort    10.100.132.110   <none>        80:30580/TCP   32s
+http://10.100.132.110:30580/
+
+oanload grafana repo
+-------------------------
+💲 helm repo add grafana https://grafana.github.io/helm-charts
+💲 helm repo update
+💲 kubectl create namespace grafana
+
+מעדכן את הרכיב של גרפנה - פורס ריסורסים של גרפנה בתוך הניימספייס באמצעות האלם
+💲 helm install grafana grafana/grafana --namespace grafana
+
+💲 kubectl get all --namespace prometheus
+💲 kubectl get all --namespace grafana
+
+
+
+get admin password for grafana
+-------------------------------
+💲 kubectl get secret --namespace grafana grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+FBZnuZVeCFK9IPU8iTtnH8YMnB5PiVtNQgqHyixw
+
+
+
+
+*) Remove All namespace and delete all the relevant k8s components
+======================================================================
 
 ❗💲 kubectl delete namespace todos
 ❗💲 kubectl get svc -n todos
+❗💲 kubectl get svc
+
+❗💲 kubectl delete namespace prometheus
+❗💲 kubectl get svc -n prometheus
+❗💲 kubectl get svc
+
+❗💲 kubectl delete namespace grafana
+❗💲 kubectl get svc -n grafana
 ❗💲 kubectl get svc
 
 ❗💲 terraform destroy -auto-approve
