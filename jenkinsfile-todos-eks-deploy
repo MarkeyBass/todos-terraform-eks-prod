@@ -1,0 +1,45 @@
+def gitCheckoutSCM(gitRepoUrl) {
+    sshagent(credentials: ['controller-node']) {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: 'main']],
+            userRemoteConfigs: [[
+                url: "${gitRepoUrl}",
+                credentialsId: 'controller-node'
+            ]]
+        ])
+    }
+}
+
+
+pipeline {
+    agent {label 'agent-1'}
+
+    environment {
+        GIT_REPO_URL_SSH = 'git@github.com:MarkeyBass/todos-terraform-eks-prod.git'
+    }
+    
+    
+    stages {
+        stage('Git Chekout') {
+            steps {
+                gitCheckoutSCM(GIT_REPO_URL_SSH)
+            }
+        }
+        stage('Deploy Todos to EKS') {
+            steps {
+                dir('eks') {
+                    sh 'aws eks --region us-west-2 update-kubeconfig --name eks --profile terraform'
+                    sh 'kubectl get svc'
+                    sh 'kubectl apply -f 0-project-namespace.yaml'
+                    sh 'kubectl apply -f 3-mysql.yaml'
+                    sh 'kubectl apply -f 4-adminer.yaml'
+                    sh 'kubectl apply -f 5-todos-server.yaml'
+                    sh 'kubectl get svc -n todos'
+                    sh 'kubectl get all -n todos'
+                }
+            }
+        }
+
+    }
+}
