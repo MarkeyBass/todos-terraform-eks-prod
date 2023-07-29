@@ -37,7 +37,6 @@ pipeline {
 
         stage('Git Commit and Push Terraform State Changes') {
             steps {
-                sh 'git checkout main'
                 sh 'git add .'
                 sh 'git status'
                 sh 'git commit -m "Terraform changes from Jenkins job ( ${JOB_NAME} )"'
