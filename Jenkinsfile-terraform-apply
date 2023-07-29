@@ -26,6 +26,14 @@ pipeline {
                 gitCheckoutSCM(GIT_REPO_URL_SSH)
             }
         }
+
+        stage('Git Switch to Main Branch') {
+            steps {
+                sh 'git checkout main'
+                sh 'git pull origin main'
+            }
+        }
+        
         stage('Terraform Apply') {
             steps {
                 dir('terraform') {

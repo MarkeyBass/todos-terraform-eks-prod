@@ -26,6 +26,14 @@ pipeline {
                 gitCheckoutSCM(GIT_REPO_URL_SSH)
             }
         }
+
+        stage('Git Switch to Main Branch') {
+            steps {
+                sh 'git checkout main'
+                sh 'git pull origin main'
+            }
+        }
+
         stage('Terraform Destroy') {
             steps {
                 dir('terraform') {
@@ -37,7 +45,6 @@ pipeline {
         
         stage('Git Commit and Push Terraform State Changes') {
             steps {
-                sh 'git checkout main'
                 sh 'git add .'
                 sh 'git status'
                 sh 'git commit -m "Terraform changes from Jenkins job ( ${JOB_NAME} )"'
